@@ -17,7 +17,7 @@ fn setup_folders() -> Result<()> {
     if let Some(name) = working_dir.file_name() {
         if let Some(filename_str) = name.to_str() {
             if folders.contains(&filename_str) {
-                return Ok(());
+                return Err(anyhow!("Parent folder shares name with MIME type"));
             }
         }
     }
@@ -84,7 +84,7 @@ fn move_file(path: path::PathBuf) -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    let _ = setup_folders();
+    setup_folders()?;
 
     let working_dir = env::current_dir()?;
 
