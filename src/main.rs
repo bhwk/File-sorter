@@ -92,6 +92,10 @@ fn main() -> Result<()> {
         let entry = entry?;
         let path = entry.path();
 
+        if path == env::current_exe()? {
+            continue;
+        }
+
         if path.is_dir() {
             continue;
         }
