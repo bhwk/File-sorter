@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use infer;
-use std::{env, fs, path};
+use std::{env, fs, path, thread, time};
 
 fn setup_folders() -> Result<()> {
     let folders = vec![
@@ -80,6 +80,7 @@ fn move_file(path: path::PathBuf) -> Result<()> {
         &file_type
     );
     fs::rename(path, new_path)?;
+    thread::sleep(time::Duration::from_millis(1));
     Ok(())
 }
 
@@ -99,7 +100,10 @@ fn main() -> Result<()> {
         if path.is_dir() {
             continue;
         }
-        let file_type = infer::get_from_path(&path)?;
+        let file_type = match infer::get_from_path(&path) {
+            Ok(file) => file,
+            Err(_) => continue,
+        };
 
         match file_type {
             Some(_) => {
