@@ -34,12 +34,9 @@ fn setup_folders() -> Result<()> {
 
 fn check_type(path: &path::PathBuf) -> Result<String> {
     let path_read = &fs::read(&path)?;
-    if infer::is_image(path_read) {
-        return Ok(String::from("Image"));
-    }
 
-    if infer::is_video(path_read) {
-        return Ok(String::from("Video"));
+    if infer::is_app(path_read) {
+        return Ok(String::from("Application"));
     }
 
     if infer::is_audio(path_read) {
@@ -55,15 +52,19 @@ fn check_type(path: &path::PathBuf) -> Result<String> {
     }
 
     if infer::is_document(path_read) {
-        return Ok(String::from("Document"));
+        return Ok(String::from("Documents"));
     }
 
     if infer::is_font(path_read) {
         return Ok(String::from("Font"));
     }
 
-    if infer::is_app(path_read) {
-        return Ok(String::from("Application"));
+    if infer::is_image(path_read) {
+        return Ok(String::from("Image"));
+    }
+
+    if infer::is_video(path_read) {
+        return Ok(String::from("Video"));
     }
 
     return Err(anyhow!("File is not a known type"));
@@ -100,18 +101,14 @@ fn main() -> Result<()> {
         if path.is_dir() {
             continue;
         }
-        let file_type = match infer::get_from_path(&path) {
-            Ok(file) => file,
-            Err(_) => continue,
-        };
 
-        match file_type {
-            Some(_) => {
-                move_file(path)?;
-            }
-            None => continue,
-        }
+        match check_type(&path) {
+            Ok(_) => move_file(path)?,
+            Err(_) => {}
+        };
     }
+
+    thread::sleep(time::Duration::from_secs(5));
 
     Ok(())
 }
